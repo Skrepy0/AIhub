@@ -1,0 +1,3 @@
+# AIhub
+
+基于 [new-api](https://github.com/QuantumNous/new-api)
