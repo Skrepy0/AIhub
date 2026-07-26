@@ -37,55 +37,53 @@ jobs:
       - name: Upload build artifacts via SCP
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SERVER_HOST }}        # 服务器 IP 或域名（如 8.215.74.129）
-          username: ${{ secrets.SERVER_USER }}    # 登录用户名（如 root 或 skrepy）
-          password: ${{ secrets.SERVER_PASSWORD }} # 登录密码（明文，务必存入 GitHub Secrets）
-          port: 22                                # SSH 端口，默认 22
-          source: "./dist/*"                      # 要传输的文件或目录
-          target: "/path/to/deploy"               # 服务器上的目标路径
-          fingerprint: ${{ secrets.SERVER_FINGERPRINT }}  # 可选，但强烈建议添加避免主机密钥验证问题
-          timeout: 60s                            # 可选，增加超时时间
-          debug: true                             # 可选，开启调试输出
-
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "./web-dist.tar.gz"          # 直接上传压缩包
+          target: "/root/AIhub/"               # 上传到项目根目录
+          fingerprint: ${{ secrets.SERVER_FINGERPRINT }}
+          timeout: 60s
+          debug: true
+        
+      # 6. 执行部署脚本
       - name: Execute deployment script
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}   # 改为密码，同时删除 key 行
+          password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             set -e
-
+        
             cd /root/AIhub
-
+        
             # 停止服务
-            systemctl stop aihub
-
-            # 备份必要文件
+            systemctl stop aihub || true
+        
+            # 备份（可选）
             mkdir -p /root/AIhubTempData
-            rm -rf /root/AIhubTempData/*
-            cp one-api.db .env docker-compose.yml /root/AIhubTempData/
-            cp -r data logs /root/AIhubTempData/
-
-            # 备份数据库（以 SQLite 为例）
+            cp one-api.db .env docker-compose.yml /root/AIhubTempData/ 2>/dev/null || true
+            cp -r data logs /root/AIhubTempData/ 2>/dev/null || true
+        
             mkdir -p /root/aihub-database-backups
-            cp one-api.db /root/aihub-database-backups/one-api-$(date +%Y%m%d%H%M%S).db
-
-            # 拉取最新代码（后端代码、配置文件等）
+            cp one-api.db /root/aihub-database-backups/one-api-$(date +%Y%m%d%H%M%S).db 2>/dev/null || true
+        
+            # 拉取最新代码（后端）
             git pull origin main
-
-            # 恢复备份的文件（覆盖拉取后的配置）
-            cp -rf /root/AIhubTempData/* /root/AIhub/
-
+        
+            # 恢复备份的配置文件（如有）
+            cp -rf /root/AIhubTempData/* /root/AIhub/ 2>/dev/null || true
+        
             # 更新 systemd 服务文件
-            rm -f /etc/systemd/system/aihub.service
             cp /root/AIhub/aihub.service /etc/systemd/system/
             systemctl daemon-reload
-
-            # 解压前端构建产物到 web/dist
+        
+            # 解压前端构建产物到 web/ 目录
             tar -xzf web-dist.tar.gz -C web/
-            rm -f web-dist.tar.gz   # 清理压缩包
-
+            rm -f web-dist.tar.gz
+        
             # 启动服务
             systemctl start aihub
