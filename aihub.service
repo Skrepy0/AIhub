@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=aihub
 WorkingDirectory=/root/AIhub
 Environment="FRONTEND_BASE_URL=https://aihub.skrepy.dpdns.org"
 Environment="LINUX_DO_TOKEN_ENDPOINT=https://connect.linux.do/oauth2/token"
