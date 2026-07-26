@@ -36,6 +36,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { defaultTopNavLinks } from '../config/top-nav.config'
 import type { TopNavLink } from '../types'
 import { HeaderLogo } from './header-logo'
+import { OpenAIhubRepositoryPage } from './repository-button'
 
 const AUTH_PROMPT_SECONDS = 5
 
@@ -263,6 +264,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               )}
 
               {showLanguageSwitcher && <LanguageSwitcher />}
+              {true && <OpenAIhubRepositoryPage />}
               {showThemeSwitch && <ThemeSwitch />}
               {showNotifications && (
                 <NotificationPopover
@@ -300,6 +302,7 @@ export function PublicHeader(props: PublicHeaderProps) {
             {/* Mobile: compact actions + hamburger */}
             <div className='flex items-center gap-2 sm:hidden'>
               {showThemeSwitch && <ThemeSwitch />}
+              <OpenAIhubRepositoryPage />
               {showAuthButtons && !loading && isAuthenticated && (
                 <ProfileDropdown />
               )}

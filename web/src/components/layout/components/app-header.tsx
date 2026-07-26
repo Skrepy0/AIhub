@@ -27,6 +27,7 @@ import { useTopNavLinks } from '@/hooks/use-top-nav-links'
 import { defaultTopNavLinks } from '../config/top-nav.config'
 import { type TopNavLink } from '../types'
 import { Header } from './header'
+import { OpenAIhubRepositoryPage } from './repository-button'
 import { SystemBrand } from './system-brand'
 import { TopNav } from './top-nav'
 
@@ -140,6 +141,7 @@ export function AppHeader({
               />
             )}
             <LanguageSwitcher />
+            <OpenAIhubRepositoryPage />
             {showConfigDrawer && <ConfigDrawer />}
             {showProfileDropdown && <ProfileDropdown />}
           </div>
