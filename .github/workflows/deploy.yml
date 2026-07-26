@@ -32,17 +32,17 @@ jobs:
         run: |
           cd web
           tar -czf ../web-dist.tar.gz dist/
-          
+
       - name: Test SSH connection
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: echo "SSH connection successful"
-
-      # 5. 通过 SCP 将打包文件传到服务器
+      
+          # 5. 通过 SCP 将打包文件传到服务器
       - name: Upload build artifacts via SCP
         uses: appleboy/scp-action@v0.1.4
         with:
