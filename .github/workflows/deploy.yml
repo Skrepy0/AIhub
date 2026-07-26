@@ -37,20 +37,22 @@ jobs:
       - name: Upload build artifacts via SCP
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          source: "web-dist.tar.gz"
-          target: "/root/AIhub/"   
+          host: ${{ secrets.SERVER_HOST }}        # 服务器 IP 或域名（如 8.215.74.129）
+          username: ${{ secrets.SERVER_USER }}    # 登录用户名（如 root 或 skrepy）
+          password: ${{ secrets.SERVER_PASSWORD }} # 登录密码（明文，务必存入 GitHub Secrets）
+          port: 22                                # SSH 端口，默认 22
+          source: "./dist/*"                      # 要传输的文件或目录
+          target: "/path/to/deploy"               # 服务器上的目标路径
+          fingerprint: ${{ secrets.SERVER_FINGERPRINT }}  # 可选，但强烈建议添加避免主机密钥验证问题
+          timeout: 60s                            # 可选，增加超时时间
+          debug: true                             # 可选，开启调试输出
 
-      # 6. 通过 SSH 在服务器上执行部署脚本
       - name: Execute deployment script
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SERVER_PASSWORD }}   # 改为密码，同时删除 key 行
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             set -e
