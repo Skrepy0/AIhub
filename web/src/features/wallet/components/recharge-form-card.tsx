@@ -475,8 +475,13 @@ export function RechargeFormCard({
         <Alert>
           <AlertDescription>
             {t(
-              'Online topup is not enabled. Please use redemption code or contact administrator.'
+              'Online topup is not enabled. Please purchase a redemption code via the following link.'
             )}
+            <br />
+            <br />
+            <a href='https://www.ifdian.net/a/skrepy2233' target='_blank'>
+              {t('Purchase Link 1')}
+            </a>
           </AlertDescription>
         </Alert>
       )}
