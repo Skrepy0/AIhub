@@ -16,7 +16,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Settings, Zap, BarChart3 } from 'lucide-react'
+// Modified by Skrepy2233 (AIhub) on 2026-08-15
+
+import {
+  Activity,
+  CircleDot,
+  DatabaseZap,
+  ShieldCheck,
+  Split,
+  WandSparkles,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
@@ -27,60 +36,78 @@ export function HowItWorks() {
   const steps = [
     {
       num: '1',
-      title: t('Configure'),
+      title: t('Connect upstreams'),
       desc: t(
-        'Add your API keys, set up channels and configure access permissions'
+        'Register providers, keys, and models, then map them into a single entry point.'
       ),
-      icon: <Settings className='size-6' strokeWidth={1.5} />,
+      icon: <DatabaseZap className='size-6' strokeWidth={1.5} />,
     },
     {
       num: '2',
-      title: t('Connect'),
+      title: t('Route with policy'),
       desc: t(
-        'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
+        'Set fallback rules, budgets, and access controls for the traffic you send.'
       ),
-      icon: <Zap className='size-6' strokeWidth={1.5} />,
+      icon: <Split className='size-6' strokeWidth={1.5} />,
     },
     {
       num: '3',
-      title: t('Monitor'),
-      desc: t('Track usage, costs and performance with real-time analytics'),
-      icon: <BarChart3 className='size-6' strokeWidth={1.5} />,
+      title: t('Monitor everything'),
+      desc: t(
+        'Watch health, spend, and latency in one place and respond before users notice.'
+      ),
+      icon: <Activity className='size-6' strokeWidth={1.5} />,
+    },
+    {
+      num: '4',
+      title: t('Ship with confidence'),
+      desc: t(
+        'Give teams a stable gateway while the upstream fleet evolves underneath.'
+      ),
+      icon: <ShieldCheck className='size-6' strokeWidth={1.5} />,
     },
   ]
 
   return (
-    <section className='border-border/40 relative z-10 border-t px-6 py-24 md:py-32'>
+    <section className='border-border/40 relative z-10 border-t px-6 py-20 md:py-28'>
       <div className='mx-auto max-w-6xl'>
-        <AnimateInView className='mb-16 text-center md:mb-20'>
+        <AnimateInView className='mb-16 max-w-2xl'>
           <p className='text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase'>
-            {t('How It Works')}
+            {t('How it works')}
           </p>
-          <h2 className='text-2xl font-bold tracking-tight md:text-3xl'>
-            {t('Three steps to get started')}
+          <h2 className='text-2xl font-bold tracking-tight md:text-4xl'>
+            {t('From raw upstreams to a clean relay layer')}
           </h2>
+          <p className='text-muted-foreground mt-4 max-w-xl text-sm leading-relaxed md:text-base'>
+            {t(
+              'AIhub keeps the messy parts of model access behind the curtain so your team only sees one dependable surface.'
+            )}
+          </p>
         </AnimateInView>
 
-        <div className='grid gap-8 md:grid-cols-3 md:gap-12'>
+        <div className='grid gap-6 md:grid-cols-2 xl:grid-cols-4'>
           {steps.map((step, i) => (
             <AnimateInView
               key={step.num}
-              delay={i * 150}
+              delay={i * 120}
               animation='fade-up'
-              className='relative flex flex-col items-center text-center'
+              className='border-border/40 bg-background relative min-w-0 overflow-hidden rounded-3xl border p-6'
             >
-              <div className='relative mb-6'>
-                <div className='text-muted-foreground border-border/50 bg-muted/30 flex size-16 items-center justify-center rounded-2xl border transition-colors'>
-                  {step.icon}
-                </div>
-                <div className='bg-foreground text-background absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full text-xs font-bold'>
-                  {step.num}
-                </div>
+              <div className='text-muted-foreground/20 absolute top-4 right-4 text-5xl font-black tracking-tight'>
+                {step.num}
               </div>
-              <h3 className='mb-2 text-base font-semibold'>{step.title}</h3>
-              <p className='text-muted-foreground max-w-[240px] text-sm leading-relaxed'>
+              <div className='border-border/50 bg-muted/30 relative mb-5 flex size-14 items-center justify-center rounded-2xl border'>
+                {step.icon}
+              </div>
+              <h3 className='text-base font-semibold'>{step.title}</h3>
+              <p className='text-muted-foreground mt-2 text-sm leading-relaxed break-words'>
                 {step.desc}
               </p>
+              <div className='text-muted-foreground mt-5 flex items-center gap-2 text-xs font-medium tracking-[0.18em] uppercase'>
+                <CircleDot className='size-3.5 text-cyan-500' />
+                {t('Stage')}
+                <WandSparkles className='size-3.5 text-violet-500' />
+              </div>
             </AnimateInView>
           ))}
         </div>

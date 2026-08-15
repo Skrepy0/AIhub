@@ -16,6 +16,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+// Modified by Skrepy2233 (AIhub) on 2026-08-15
+
 import { useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -111,12 +113,12 @@ export function Stats(_props: StatsProps) {
           {stats.map((s) => (
             <div
               key={s.label}
-              className='flex flex-col items-center text-center'
+              className='flex min-w-0 flex-col items-center text-center'
             >
               <span className='text-2xl font-bold tracking-tight md:text-3xl'>
                 <Counter end={s.end} suffix={s.suffix} decimals={s.decimals} />
               </span>
-              <span className='text-muted-foreground mt-1.5 text-xs'>
+              <span className='text-muted-foreground mt-1.5 min-w-0 text-xs break-words'>
                 {s.label}
               </span>
             </div>

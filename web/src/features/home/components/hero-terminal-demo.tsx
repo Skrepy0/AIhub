@@ -16,6 +16,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+// Modified by Skrepy2233 (AIhub) on 2026-08-15
+
 import { useState, useEffect, useRef, type ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -75,7 +77,7 @@ const API_DEMOS: ApiDemoConfig[] = [
     id: 'gpt-chat',
     label: 'Chat',
     method: 'POST',
-    endpoint: '/v1/chat/completions',
+    endpoint: 'https://aihub.skrepy.dpdns.org/v1/chat/completions',
     headers: ['"Authorization: Bearer sk-••••"'],
     request: [
       '"model": "your-model",',
@@ -98,7 +100,7 @@ const API_DEMOS: ApiDemoConfig[] = [
     id: 'responses',
     label: 'Responses',
     method: 'POST',
-    endpoint: '/v1/responses',
+    endpoint: 'https://aihub.skrepy.dpdns.org/v1/responses',
     headers: ['"Authorization: Bearer sk-••••"'],
     request: ['"model": "your-model",', '"input": "..."'],
     response: [
@@ -116,7 +118,7 @@ const API_DEMOS: ApiDemoConfig[] = [
     id: 'claude',
     label: 'Claude',
     method: 'POST',
-    endpoint: '/v1/messages',
+    endpoint: 'https://aihub.skrepy.dpdns.org/v1/messages',
     headers: ['"x-api-key: sk-••••"', '"anthropic-version: 2023-06-01"'],
     request: [
       '"model": "your-model",',
@@ -140,7 +142,8 @@ const API_DEMOS: ApiDemoConfig[] = [
     id: 'gemini',
     label: 'Gemini',
     method: 'POST',
-    endpoint: '/v1beta/models/{model}:generateContent',
+    endpoint:
+      'https://aihub.skrepy.dpdns.org/v1beta/models/{model}:generateContent',
     headers: ['"x-goog-api-key: sk-••••"'],
     request: [
       '"contents": [',
