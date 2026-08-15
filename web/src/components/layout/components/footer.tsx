@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+// Modified by Skrepy2233 (AIhub) on 2026-08-15
 import { Link } from '@tanstack/react-router'
 import { Fragment, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -137,6 +138,9 @@ function ProjectAttribution(props: { currentYear: number; inline?: boolean }) {
         {t('New API')}
       </a>
       . {t(NEW_API_FOOTER_ATTRIBUTION_KEY)}
+      <span className='text-muted-foreground/40 text-xs'>
+        {t('footer.modifiedBy', { s: 'Skrepy2233' })}
+      </span>
     </span>
   )
   if (props.inline) {
