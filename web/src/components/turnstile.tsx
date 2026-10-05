@@ -16,12 +16,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useEffect, useRef } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 
 declare global {
   interface Window {
     turnstile?: {
-      render: (element: HTMLElement, options: Record<string, unknown>) => void
+      render: (element: HTMLElement, options: Record<string, unknown>) => string
+      reset: (widgetId: string) => void
+      execute: (widgetId: string) => void
+      getResponse: (widgetId: string) => string
+      remove: (widgetId: string) => void
     }
   }
 }
@@ -33,44 +37,114 @@ interface TurnstileProps {
   className?: string
 }
 
-export function Turnstile({
-  siteKey,
-  onVerify,
-  onExpire,
-  className,
-}: TurnstileProps) {
-  const ref = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    const render = () => {
-      if (!ref.current || !window.turnstile) return
-      try {
-        window.turnstile.render(ref.current, {
-          sitekey: siteKey,
-          callback: (token: string) => onVerify(token),
-          'error-callback': () => onExpire?.(),
-          'expired-callback': () => onExpire?.(),
-        })
-      } catch {
-        /* empty */
-      }
-    }
-
-    if (window.turnstile) {
-      render()
-      return
-    }
-    const scriptId = 'cf-turnstile'
-    if (document.getElementById(scriptId)) return
-    const s = document.createElement('script')
-    s.id = scriptId
-    s.src =
-      'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
-    s.async = true
-    s.defer = true
-    s.onload = () => render()
-    document.head.appendChild(s)
-  }, [siteKey, onVerify, onExpire])
-
-  return <div ref={ref} className={className} />
+export interface TurnstileRef {
+  reset: () => void
+  execute: () => void
+  getResponse: () => string
+  remove: () => void
 }
+
+export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(
+  function Turnstile({ siteKey, onVerify, onExpire, className }, ref) {
+    const containerRef = useRef<HTMLDivElement | null>(null)
+    const widgetIdRef = useRef<string | null>(null)
+    const renderedRef = useRef(false)
+    const onVerifyRef = useRef(onVerify)
+    const onExpireRef = useRef(onExpire)
+
+    // Keep callback refs current so the render effect doesn't re-fire
+    onVerifyRef.current = onVerify
+    onExpireRef.current = onExpire
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        reset() {
+          const wid = widgetIdRef.current
+          if (wid && window.turnstile) window.turnstile.reset(wid)
+        },
+        execute() {
+          const wid = widgetIdRef.current
+          if (wid && window.turnstile) window.turnstile.execute(wid)
+        },
+        getResponse() {
+          const wid = widgetIdRef.current
+          if (wid && window.turnstile) return window.turnstile.getResponse(wid)
+          return ''
+        },
+        remove() {
+          const wid = widgetIdRef.current
+          if (wid && window.turnstile) {
+            window.turnstile.remove(wid)
+            widgetIdRef.current = null
+          }
+        },
+      }),
+      []
+    )
+
+    useEffect(() => {
+      if (renderedRef.current) return
+
+      const render = () => {
+        if (!containerRef.current || !window.turnstile) return
+        if (renderedRef.current) return
+
+        try {
+          widgetIdRef.current = window.turnstile.render(containerRef.current, {
+            sitekey: siteKey,
+            callback: (token: string) => onVerifyRef.current(token),
+            'error-callback': () => onExpireRef.current?.(),
+            'expired-callback': () => onExpireRef.current?.(),
+          })
+          renderedRef.current = true
+        } catch {
+          /* empty */
+        }
+      }
+
+      if (window.turnstile) {
+        render()
+        return
+      }
+
+      const scriptId = 'cf-turnstile'
+      const existing = document.getElementById(
+        scriptId
+      ) as HTMLScriptElement | null
+      if (existing) {
+        if ((window as unknown as { turnstile?: unknown }).turnstile) {
+          render()
+        } else {
+          existing.addEventListener('load', render, { once: true })
+        }
+      } else {
+        const s = document.createElement('script')
+        s.id = scriptId
+        s.src =
+          'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+        s.async = true
+        s.defer = true
+        s.onload = () => render()
+        document.head.appendChild(s)
+      }
+
+      return () => {
+        if (renderedRef.current) {
+          const wid = widgetIdRef.current
+          if (wid && window.turnstile) {
+            try {
+              window.turnstile.remove(wid)
+            } catch {
+              /* empty */
+            }
+          }
+          widgetIdRef.current = null
+          renderedRef.current = false
+        }
+      }
+    }, [siteKey])
+
+    return <div ref={containerRef} className={className} />
+  }
+)

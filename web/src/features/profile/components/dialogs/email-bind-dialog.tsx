@@ -17,13 +17,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Dialog } from '@/components/dialog'
 // Modified by Skrepy2233 (AIhub) on 2026-10-5
-import { Turnstile } from '@/components/turnstile'
+import { Turnstile, type TurnstileRef } from '@/components/turnstile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -53,8 +53,8 @@ export function EmailBindDialog({
   const [loading, setLoading] = useState(false)
   const [sendingCode, setSendingCode] = useState(false)
   const [email, setEmail] = useState('')
-  const [turnstileKey, setTurnstileKey] = useState(0)
   const [code, setCode] = useState('')
+  const turnstileRef = useRef<TurnstileRef>(null)
   const {
     isTurnstileEnabled,
     turnstileSiteKey,
@@ -62,6 +62,7 @@ export function EmailBindDialog({
     setTurnstileToken,
     validateTurnstile,
   } = useTurnstile()
+  const turnstileReady = !isTurnstileEnabled || Boolean(turnstileToken)
   const {
     secondsLeft,
     isActive,
@@ -93,7 +94,7 @@ export function EmailBindDialog({
       setSendingCode(false)
       if (isTurnstileEnabled) {
         setTurnstileToken('')
-        setTurnstileKey((k) => k + 1)
+        turnstileRef.current?.reset()
       }
     }
   }
@@ -203,7 +204,7 @@ export function EmailBindDialog({
               type='button'
               variant='outline'
               onClick={handleSendCode}
-              disabled={sendingCode || isActive || !email}
+              disabled={sendingCode || isActive || !email || !turnstileReady}
             >
               {isActive
                 ? `${secondsLeft}s`
@@ -215,7 +216,7 @@ export function EmailBindDialog({
         </div>
         {isTurnstileEnabled && (
           <Turnstile
-            key={turnstileKey}
+            ref={turnstileRef}
             siteKey={turnstileSiteKey}
             onVerify={setTurnstileToken}
             onExpire={() => setTurnstileToken('')}
