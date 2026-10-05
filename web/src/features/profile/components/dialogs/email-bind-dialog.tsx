@@ -22,9 +22,12 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Dialog } from '@/components/dialog'
+// Modified by Skrepy2233 (AIhub) on 2026-10-5
+import { Turnstile } from '@/components/turnstile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useTurnstile } from '@/features/auth/hooks/use-turnstile'
 import { useCountdown } from '@/hooks/use-countdown'
 
 import { sendEmailVerification, bindEmail } from '../../api'
@@ -50,7 +53,15 @@ export function EmailBindDialog({
   const [loading, setLoading] = useState(false)
   const [sendingCode, setSendingCode] = useState(false)
   const [email, setEmail] = useState('')
+  const [turnstileKey, setTurnstileKey] = useState(0)
   const [code, setCode] = useState('')
+  const {
+    isTurnstileEnabled,
+    turnstileSiteKey,
+    turnstileToken,
+    setTurnstileToken,
+    validateTurnstile,
+  } = useTurnstile()
   const {
     secondsLeft,
     isActive,
@@ -65,10 +76,10 @@ export function EmailBindDialog({
       toast.error(t('Please enter a valid email address'))
       return
     }
-
+    if (!validateTurnstile()) return
     try {
       setSendingCode(true)
-      const response = await sendEmailVerification(email)
+      const response = await sendEmailVerification(email, turnstileToken)
 
       if (response.success) {
         toast.success(t('Verification code sent! Please check your email.'))
@@ -80,6 +91,10 @@ export function EmailBindDialog({
       toast.error(t('Failed to send verification code'))
     } finally {
       setSendingCode(false)
+      if (isTurnstileEnabled) {
+        setTurnstileToken('')
+        setTurnstileKey((k) => k + 1)
+      }
     }
   }
 
@@ -119,6 +134,7 @@ export function EmailBindDialog({
         setEmail('')
         setCode('')
         resetCountdown()
+        setTurnstileToken('')
       }
     }
   }
@@ -197,6 +213,14 @@ export function EmailBindDialog({
             </Button>
           </div>
         </div>
+        {isTurnstileEnabled && (
+          <Turnstile
+            key={turnstileKey}
+            siteKey={turnstileSiteKey}
+            onVerify={setTurnstileToken}
+            onExpire={() => setTurnstileToken('')}
+          />
+        )}
       </div>
     </Dialog>
   )
